@@ -13,6 +13,34 @@ def draw(space, window, draw_option):
     space.debug_draw(draw_option)
     pygame.display.update()
 
+def create_scale_base(space, width, height):
+    GOLD = (255, 215, 0, 0)
+    rects = [
+        [(500, height - 120), (35, 400), GOLD, 100]
+    ]
+    
+    for pos, size, color, mass in rects:
+        body = pymunk.Body()
+        body.position = pos
+        shape = pymunk.Poly.create_box(body, size, radius=2)
+        shape.color = GOLD
+        shape.mass = mass
+        shape.elasticity = 0
+        shape.friction = 0.4
+        space.add(body, shape)
+
+def create_scale_body(space):
+    rotation_center_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    rotation_center_body.position = (500, 350)
+
+    body = pymunk.Body()
+    body.position = (500, 350)
+    rect = pymunk.Poly.create_box(body, (500, 40))
+    rect.friction = 1
+    rect.mass = 8
+    rotation_center_joint = pymunk.PinJoint(body, rotation_center_body, (0, 0), (0, 0))
+    space.add(rect, body, rotation_center_joint)
+
 def create_ball(space, radius, mass):
     density = mass / ((4/3) * math.pi * radius**3)
     body = pymunk.Body()
