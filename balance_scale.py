@@ -83,7 +83,9 @@ def run(window, width, height):
 
     ball = create_ball(space, 30, 1)  # Adjusted mass to 1 kg
     create_boundaries(space, width, height)
-
+    create_scale_base(space, width, height)
+    create_scale_body(space)
+    
     dragging = False
     while run:
         for event in pygame.event.get():
