@@ -15,7 +15,6 @@ mouse_trajectory = []
 
 class Ball:
     def __init__(self, space, radius, mass,color, text_color=(0, 0, 0,255), x_pos=300, y_pos=300,GRAVITY = 9.81, AIR_RESISTANCE = 0.01, FRICTION = 0.5, ELASTICITY = 0.8):
-        
         self.mass = mass
         self.GRAVITY = GRAVITY
         self.AIR_RESISTANCE = AIR_RESISTANCE
@@ -123,94 +122,37 @@ def draw(space, window, draw_option):
 
 def create_scale_base(space, width, height):
     GOLD = (255, 215, 0, 0)
-
-    # Rectangle (base)
     rects = [
-        [(500, height - 120), (20, 565), GOLD, 100]
+        [(500, height - 120), (35, 400), GOLD, 100]
     ]
+    
     for pos, size, color, mass in rects:
-        body = pymunk.Body(body_type=pymunk.Body.STATIC)  # Make body static
+        body = pymunk.Body()
         body.position = pos
         shape = pymunk.Poly.create_box(body, size, radius=2)
-        shape.color = color
+        shape.color = GOLD
         shape.mass = mass
         shape.elasticity = 0
         shape.friction = 0.4
         space.add(body, shape)
 
-    # Triangle (candle-like shape)
-    triangle_vertices = [(500, height - 440), (490, height - 400), (510, height - 400)]
-    triangle_body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    triangle_shape = pymunk.Poly(triangle_body, triangle_vertices)
-    triangle_shape.color = GOLD
-
-    # Adding segments to create a frame around the triangle
-    edge1 = pymunk.Segment(triangle_body, triangle_vertices[0], triangle_vertices[1], 2)  
-    edge2 = pymunk.Segment(triangle_body, triangle_vertices[1], triangle_vertices[2], 2)
-    edge3 = pymunk.Segment(triangle_body, triangle_vertices[2], triangle_vertices[0], 2)
-    space.add(triangle_body, triangle_shape, edge1, edge2, edge3)
-    return space
-
-
-
-
-
 def create_scale_body(space):
     ball_mass = 1
-
     rotation_center_body = pymunk.Body(body_type=pymunk.Body.STATIC)
     rotation_center_body.position = (500, 350)
 
     body = pymunk.Body()
     body.position = (500, 350)
-    rect = pymunk.Poly.create_box(body, (500, 20))  
+    rect = pymunk.Poly.create_box(body, (500, 40))
     rect.friction = 1
     rect.mass = ball_mass
     rotation_center_joint = pymunk.PinJoint(body, rotation_center_body, (0, 0), (0, 0))
-    
-    
-    space.add(body, rect, rotation_center_joint)
-    
-     # Adding box 
-    body1 = pymunk.Body(mass=1, moment=1000)
-    body2 = pymunk.Body(mass=1, moment=1000)
-    
-    body1.position = (700, 280)
-    body2.position = (300, 280)
-    body1.apply_impulse_at_local_point((0, 0), (0, 0))
-    body2.apply_impulse_at_local_point((0, 0), (0, 0))
-
-    s1 = pymunk.Segment(body1, (60, 60), (-60, 60), 8)
-    s2 = pymunk.Segment(body1, (-60, -60), (-60, 60), 8)
-    s3 = pymunk.Segment(body1, (60, -60), (60, 60), 8)
-
-    s11 = pymunk.Segment(body2, (60, 60), (-60, 60), 8)
-    s22 = pymunk.Segment(body2, (-60, -60), (-60, 60), 8)
-    s33 = pymunk.Segment(body2, (60, -60), (60, 60), 8)
-
-    s1.elasticity = 0.2
-    s2.elasticity = 0.2
-    s3.elasticity = 0.2
-    s11.elasticity = 0.2
-    s22.elasticity = 0.2
-    s33.elasticity = 0.2
-
-    space.add(body1,s1, s2, s3)
-    space.add(body2, s11, s22, s33)
-
-    # Add PivotJoint to connect the two boxes-
-    #pivot_joint = pymunk.PivotJoint(body,body1, (500,350))
-    #space.add(pivot_joint)
-    #pivot_joint1 = pymunk.PivotJoint(body,body2, (500,350),(0,0))
-    #space.add(pivot_joint1)
-    return body1, body2
-
+    space.add(rect, body, rotation_center_joint)
 
 def create_ball(space, radius, mass):
     density = mass / ((4/3) * math.pi * radius**3)
     body = pymunk.Body()
     body.position = (300, 300)
-    shape.collision_type = 1
     shape = pymunk.Circle(body, radius)
     shape.mass = mass
     shape.density = density
@@ -245,13 +187,10 @@ def create_boundaries(space, width, height):
 def run(window, width, height):
     GRAVITY = 9.81
     run = True
-    space = pymunk.Space()
     clock = pygame.time.Clock()
     fps = 60
     dt = 1 / fps
 
-    handler = space.add_collision_handler(1, 2)
-    handler.begin = lambda a, b, arbiter, space: False
     space = pymunk.Space()
     space.gravity = (0, GRAVITY * 100)
     draw_options = pymunk.pygame_util.DrawOptions(window)
@@ -271,7 +210,6 @@ def run(window, width, height):
     create_boundaries(space, width, height)
     create_scale_base(space, width, height)
     create_scale_body(space)
-    
 
     dragging = [False, False,False,False,False,False, False,False,False,False]  # Separate drag states for each ball
     original_gravity = space.gravity
@@ -285,109 +223,79 @@ def run(window, width, height):
                     pos = pygame.mouse.get_pos()
                     if is_point_in_circle(pos, sball1):
                         dragging[0] = True
-                        sball1.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, sball2):
                         dragging[1] = True
-                        sball2.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, sball3):
                         dragging[2] = True
-                        sball3.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, sball4):
                         dragging[3] = True
-                        sball4.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, sball5):
                         dragging[4] = True
-                        sball5.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, Bball1):
                         dragging[5] = True
-                        Bball1.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, Bball2):
                         dragging[6] = True
-                        Bball2.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, Bball3):
                         dragging[7] = True
-                        Bball3.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, Bball4):
                         dragging[8] = True
-                        Bball4.body.force = 0, 0
                         space.gravity = 0, 0
                     elif is_point_in_circle(pos, Bball5):
                         dragging[9] = True
-                        Bball5.body.force = 0, 0
                         space.gravity = 0, 0
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # Left mouse button
-                    if dragging[0]:
-                        sball1.body.force = 0, -sball1.body.mass * GRAVITY * 100
-                    if dragging[1]:
-                        sball2.body.force = 0, -sball2.body.mass * GRAVITY * 100
-                    if dragging[2]:
-                        sball3.body.force = 0, -sball3.body.mass * GRAVITY * 100
-                    if dragging[3]:
-                        sball4.body.force = 0, -sball4.body.mass * GRAVITY * 100
-                    if dragging[4]:
-                        sball5.body.force = 0, -sball5.body.mass * GRAVITY * 100
-                    if dragging[5]:
-                        Bball1.body.force = 0, -Bball1.body.mass * GRAVITY * 100
-                    if dragging[6]:
-                        Bball2.body.force = 0, -Bball2.body.mass * GRAVITY * 100
-                    if dragging[7]:
-                        Bball3.body.force = 0, -Bball3.body.mass * GRAVITY * 100
-                    if dragging[8]:
-                        Bball4.body.force = 0, -Bball4.body.mass * GRAVITY * 100
-                    if dragging[9]:
-                        Bball5.body.force = 0, -Bball5.body.mass * GRAVITY * 100
+                    dragging[0] = False
+                    dragging[1] = False
+                    dragging[2] = False
+                    dragging[3] = False
+                    dragging[4] = False
+                    dragging[5] = False
+                    dragging[6] = False
+                    dragging[7] = False
+                    dragging[8] = False
+                    dragging[9] = False
                     space.gravity = original_gravity
-                    dragging = [False] * 10
+
         # Handle dragging independently for each ball
         if dragging[0]:
             pos = pygame.mouse.get_pos()
             sball1.body.position = pos
-            sball1.body.velocity = 0, 0
         if dragging[1]:
             pos2 = pygame.mouse.get_pos()
             sball2.body.position = pos2
-            sball2.body.velocity = 0, 0
         if dragging[2]:
             pos3 = pygame.mouse.get_pos()
             sball3.body.position = pos3
-            sball3.body.velocity = 0, 0
         if dragging[3]:
             pos4 = pygame.mouse.get_pos()
             sball4.body.position = pos4
-            sball4.body.velocity = 0, 0
         if dragging[4]:
             pos5 = pygame.mouse.get_pos()
             sball5.body.position = pos5
-            sball5.body.velocity = 0, 0
         if dragging[5]:
             pos6 = pygame.mouse.get_pos()
             Bball1.body.position = pos6
-            Bball1.body.velocity = 0, 0
         if dragging[6]:
             pos7 = pygame.mouse.get_pos()
             Bball2.body.position = pos7
-            Bball2.body.velocity = 0, 0
         if dragging[7]:
             pos8 = pygame.mouse.get_pos()
             Bball3.body.position = pos8
-            Bball3.body.velocity = 0, 0
         if dragging[8]:
             pos9 = pygame.mouse.get_pos()
             Bball4.body.position = pos9
-            Bball4.body.velocity = 0, 0
         if dragging[9]:
             pos10 = pygame.mouse.get_pos()
             Bball5.body.position = pos10
-            Bball5.body.velocity = 0, 0
 
 
         space.step(dt)
