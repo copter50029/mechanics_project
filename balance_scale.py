@@ -14,7 +14,7 @@ mouse_trajectory = []
 
 
 class Ball:
-    def __init__(self, space, radius, mass, x_pos=300, y_pos=300,GRAVITY = 9.81, AIR_RESISTANCE = 0.01, FRICTION = 0.5, ELASTICITY = 0.8):
+    def __init__(self, space, radius, mass,color, text_color=(0, 0, 0,255), x_pos=300, y_pos=300,GRAVITY = 9.81, AIR_RESISTANCE = 0.01, FRICTION = 0.5, ELASTICITY = 0.8):
         self.mass = mass
         self.GRAVITY = GRAVITY
         self.AIR_RESISTANCE = AIR_RESISTANCE
@@ -26,6 +26,8 @@ class Ball:
         self.y_pos = y_pos
         self.x_speed = 0
         self.y_speed = 0
+        self.text_color = text_color
+        self.font = pygame.font.Font(None, 24)
         self.friction = 0.5
         self.retention = 0.8
         density = mass / ((4/3) * math.pi * radius**3)
@@ -34,11 +36,20 @@ class Ball:
         self.circle = pymunk.Circle(self.body, radius)
         self.circle.mass = mass
         self.circle.density = density
-        self.circle.color = (255, 0, 0, 100)
+        self.circle.color = color
         self.circle.elasticity = 0.8 
         self.circle.friction = 0.5  
         space.add(self.body, self.circle)
 
+    def draw_text(self, surface, text):
+        text_object = self.font.render(str(text), True, self.text_color)
+        text_rect = text_object.get_rect(center=self.body.position)
+        surface.blit(text_object, text_rect)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, self.color, self.body.position, self.radius)
+        self.draw_text(surface, self.body.mass)
+        
     def check_gravity(self, x_push, y_push):
         self.x_speed -= self.x_speed * self.AIR_RESISTANCE
         self.y_speed -= self.y_speed * self.AIR_RESISTANCE
@@ -172,6 +183,7 @@ def create_boundaries(space, width, height):
         shape.friction = 0.5  
         space.add(body, shape)
 
+
 def run(window, width, height):
     GRAVITY = 9.81
     run = True
@@ -180,16 +192,28 @@ def run(window, width, height):
     dt = 1 / fps
 
     space = pymunk.Space()
-    space.gravity = (0, GRAVITY * 100) 
+    space.gravity = (0, GRAVITY * 100)
     draw_options = pymunk.pygame_util.DrawOptions(window)
 
-    ball = Ball(space, 30, 1)  # Adjusted mass to 1 kg
-    space.gravity = (0, ball.GRAVITY * 100)
+    sball1 = Ball(space, 15, 0.5, (0, 0, 0,255)) #black  # Adjusted mass to 0.5 kg
+    sball2 = Ball(space, 15, 1, (0, 0, 255,255)) #blue  # Adjusted mass to 1kg
+    sball3 = Ball(space, 15, 1.5, (0, 255, 255,255)) #cyan  # Adjusted mass to 1.5kg
+    sball4 = Ball(space, 15, 2, (255, 215, 0,255)) #gold   # Adjusted mass to 2kg
+    sball5 = Ball(space, 15, 2.5, (190, 190, 190,255))#gray   # Adjusted mass to 2.5kg
+    Bball1 =Ball(space, 30, 3, (0, 255, 0, 255))#green   # Adjusted mass to 3kg
+    Bball2 =Ball(space, 30, 5, (255, 165, 0, 255))#orange  # Adjusted mass to 5kg
+    Bball3 =Ball(space, 30, 7, (160, 32, 240, 255))#purple   # Adjusted mass to 7kg
+    Bball4 =Ball(space, 30, 11, (255, 0, 0, 255))#red  # Adjusted mass to 11kg
+    Bball5 =Ball(space, 30, 18, (255, 255, 0, 255))#yellow   # Adjusted mass to 18kg
+    
+
     create_boundaries(space, width, height)
     create_scale_base(space, width, height)
     create_scale_body(space)
-    dragging = False
+
+    dragging = [False, False,False,False,False,False, False,False,False,False]  # Separate drag states for each ball
     original_gravity = space.gravity
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -197,29 +221,82 @@ def run(window, width, height):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left mouse button
                     pos = pygame.mouse.get_pos()
-                    if is_point_in_circle(pos, ball):
-                        dragging = True
+                    if is_point_in_circle(pos, sball1):
+                        dragging[0] = True
                         space.gravity = 0, 0
-                        mouse_coords = pygame.mouse.get_pos()
-                        mouse_trajectory.append(mouse_coords)
-                        if len(mouse_trajectory) > 20:
-                            mouse_trajectory.pop(0)
-                        x_push, y_push = calc_motion_vector()
-                        ball.check_gravity(x_push, y_push)
+                    elif is_point_in_circle(pos, sball2):
+                        dragging[1] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, sball3):
+                        dragging[2] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, sball4):
+                        dragging[3] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, sball5):
+                        dragging[4] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, Bball1):
+                        dragging[5] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, Bball2):
+                        dragging[6] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, Bball3):
+                        dragging[7] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, Bball4):
+                        dragging[8] = True
+                        space.gravity = 0, 0
+                    elif is_point_in_circle(pos, Bball5):
+                        dragging[9] = True
+                        space.gravity = 0, 0
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # Left mouse button
-                    dragging = False
+                    dragging[0] = False
+                    dragging[1] = False
+                    dragging[2] = False
+                    dragging[3] = False
+                    dragging[4] = False
+                    dragging[5] = False
+                    dragging[6] = False
+                    dragging[7] = False
+                    dragging[8] = False
+                    dragging[9] = False
                     space.gravity = original_gravity
-                    mouse_coords = pygame.mouse.get_pos()
-                    mouse_trajectory.append(mouse_coords)
-                    if len(mouse_trajectory) > 20:
-                        mouse_trajectory.pop(0)
-                    x_push, y_push = calc_motion_vector()
-                    ball.check_gravity(x_push, y_push)
 
-        if dragging:
+        # Handle dragging independently for each ball
+        if dragging[0]:
             pos = pygame.mouse.get_pos()
-            ball.body.position = pos
+            sball1.body.position = pos
+        if dragging[1]:
+            pos2 = pygame.mouse.get_pos()
+            sball2.body.position = pos2
+        if dragging[2]:
+            pos3 = pygame.mouse.get_pos()
+            sball3.body.position = pos3
+        if dragging[3]:
+            pos4 = pygame.mouse.get_pos()
+            sball4.body.position = pos4
+        if dragging[4]:
+            pos5 = pygame.mouse.get_pos()
+            sball5.body.position = pos5
+        if dragging[5]:
+            pos6 = pygame.mouse.get_pos()
+            Bball1.body.position = pos6
+        if dragging[6]:
+            pos7 = pygame.mouse.get_pos()
+            Bball2.body.position = pos7
+        if dragging[7]:
+            pos8 = pygame.mouse.get_pos()
+            Bball3.body.position = pos8
+        if dragging[8]:
+            pos9 = pygame.mouse.get_pos()
+            Bball4.body.position = pos9
+        if dragging[9]:
+            pos10 = pygame.mouse.get_pos()
+            Bball5.body.position = pos10
+
 
         space.step(dt)
         draw(space, window, draw_options)
