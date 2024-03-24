@@ -235,9 +235,6 @@ def create_boundaries(space, width, height):
         shape.friction = 0.5  
         space.add(body, shape)
 
-def create_button(x, y, width, height, color, text, text_color, action=None):
-    return Button(x, y, width, height, color, text, text_color, action)
-
 
 def run(window, width, height):
     GRAVITY = 9.81
@@ -246,8 +243,7 @@ def run(window, width, height):
     clock = pygame.time.Clock()
     fps = 60
     dt = 1 / fps
-    
-    button = create_button(50, 50, 100, 50, (0, 255, 0), "Click Me", (255, 255, 255), lambda: print("Button clicked!"))
+
     handler = space.add_collision_handler(1, 2)
     handler.begin = lambda a, b, arbiter, space: False
     space = pymunk.Space()
@@ -272,7 +268,7 @@ def run(window, width, height):
     
 
     dragging = [False, False,False,False,False,False, False,False,False,False]  # Separate drag states for each ball
-    
+    original_gravity = space.gravity
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -280,9 +276,6 @@ def run(window, width, height):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left mouse button
                     pos = pygame.mouse.get_pos()
-                    mouse_pos = pygame.mouse.get_pos()
-                    if button.rect.collidepoint(mouse_pos):
-                        button.click()
                     if is_point_in_circle(pos, sball1):
                         dragging[0] = True
                         sball1.body.force = 0, 0
@@ -365,11 +358,34 @@ def run(window, width, height):
             pos10 = pygame.mouse.get_pos()
             Bball5.body.position = pos10
             Bball5.body.velocity = 0, 0
-
+        elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Left mouse button
+                    if dragging[0]:
+                        sball1.body.force = 0, -sball1.body.mass * GRAVITY * 100
+                    if dragging[1]:
+                        sball2.body.force = 0, -sball2.body.mass * GRAVITY * 100
+                    if dragging[2]:
+                        sball3.body.force = 0, -sball3.body.mass * GRAVITY * 100
+                    if dragging[3]:
+                        sball4.body.force = 0, -sball4.body.mass * GRAVITY * 100
+                    if dragging[4]:
+                        sball5.body.force = 0, -sball5.body.mass * GRAVITY * 100
+                    if dragging[5]:
+                        Bball1.body.force = 0, -Bball1.body.mass * GRAVITY * 100
+                    if dragging[6]:
+                        Bball2.body.force = 0, -Bball2.body.mass * GRAVITY * 100
+                    if dragging[7]:
+                        Bball3.body.force = 0, -Bball3.body.mass * GRAVITY * 100
+                    if dragging[8]:
+                        Bball4.body.force = 0, -Bball4.body.mass * GRAVITY * 100
+                    if dragging[9]:
+                        Bball5.body.force = 0, -Bball5.body.mass * GRAVITY * 100
+                    space.gravity = original_gravity
+                    dragging = [False] * 10
         space.step(dt)
         draw(space, window, draw_options)
         clock.tick(fps)
-        button.draw(window, (0, 0, 0))
+        
 
     pygame.quit()
 
