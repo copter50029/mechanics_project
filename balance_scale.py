@@ -12,7 +12,10 @@ gravity = 0.5
 bounce_stop = 0.3
 wall_thickness = 10
 mouse_trajectory = []
-                    
+background = pygame.image.load('blackgroud_for_display.png')
+
+
+          
 class Ball:
     def __init__(self, space, radius, mass,color, text_color=(0, 0, 0,255), x_pos=300, y_pos=300,GRAVITY = 9.81, AIR_RESISTANCE = 0.01, FRICTION = 0.5, ELASTICITY = 0.8):
         
@@ -117,8 +120,9 @@ def check_select(self, pos):
 
 
 def draw(space, window, draw_option):
-    window.fill("white")
+    window.blit(background, (0, 0))
     space.debug_draw(draw_option)
+
     pygame.display.update()
 
 def create_scale_base(space, width, height):
@@ -148,26 +152,44 @@ def create_scale_body(space):
 
     body = pymunk.Body(body_type=pymunk.Body.DYNAMIC)
     body.position = (500, 350)
-    body.angle = math.radians(10)
+    body.angle = math.radians(0)
     rect = pymunk.Poly.create_box(body, (500, 10))  
     rect.friction = 1
     rect.mass = scg
     
 
-    s2 = pymunk.Segment(body, (-250, -120), (-250, 0), 4)
-    s3 = pymunk.Segment(body, (-125, -120), (-125, 0), 4)
+    s2 = pymunk.Segment(body, (-250, 120), (-250, 0), 4)
+    s3 = pymunk.Segment(body, (-250, 120), (-200, 200), 4)
+    s4 = pymunk.Segment(body, (-200, 200), (-200, 350), 4)
+    s5 = pymunk.Segment(body, (-200, 350), (-300, 350), 4)
+    s6 = pymunk.Segment(body, (-300, 350), (-300, 200), 4)
+    s7 = pymunk.Segment(body, (-300, 200), (-250, 120), 4)
+    s6.color = (255, 0, 0, 255)
+    s5.color = (255, 0, 0, 255)
+    s4.color = (255, 0, 0, 255)
+    
+    
+    
+   
     circle = pymunk.Circle(body, 30, (0, 0))
-    s11 = pymunk.Segment(body, (250, -120), (250, 0), 4)
-    s22 = pymunk.Segment(body, (125, -120), (125, 0), 4)
+    s11 = pymunk.Segment(body, (250, 120), (250, 0), 4)
+    s12 = pymunk.Segment(body, (250, 120), (200, 200), 4)
+    s13 = pymunk.Segment(body, (200, 200), (200, 350), 4)
+    s14 = pymunk.Segment(body, (200, 350), (300, 350), 4)
+    s15 = pymunk.Segment(body, (300, 350), (300, 200), 4)
+    s16 = pymunk.Segment(body, (300, 200), (250, 120), 4)
+    s15.color = (0, 255, 0, 255)
+    s14.color = (0, 255, 0, 255)
+    s13.color = (0, 255, 0, 255)
+    
     pivot_joint = pymunk.PivotJoint(rotation_center_body, body, (500, 350))
     space.add(pivot_joint)
-
-    # Add a rotary limit joint to limit rotation to 30 degrees
-    limit_joint = pymunk.RotaryLimitJoint(rotation_center_body, body, -math.radians(10), math.radians(10))
+    # Add a rotary limit joint to limit rotation to 10 degrees
+    limit_joint = pymunk.RotaryLimitJoint(rotation_center_body, body, -math.radians(10), math.radians(10))        
     space.add(limit_joint)
     
     space.add(body, rect)
-    space.add(s2, s3,s11,s22,circle)
+    space.add(s2, s3, s11,circle,s4,s5,s6,s7,s12,s13,s14,s15,s16)
 
 
 
@@ -202,6 +224,7 @@ def run(window, width, height):
     clock = pygame.time.Clock()
     fps = 60
     dt = 1 / fps
+    
 
     handler = space.add_collision_handler(1, 2)
     handler.begin = lambda a, b, arbiter, space: False
@@ -209,60 +232,32 @@ def run(window, width, height):
     space.gravity = (0, GRAVITY * 100)
     draw_options = pymunk.pygame_util.DrawOptions(window)
 
-    
-    Lball_params = [
-    (15, 0.5, (0, 0, 0, 255)),  # black mass 0.5kg
-    (15, 1, (0, 0, 255, 255)),  # blue mass 1kg
-    (15, 1.5, (0, 255, 255, 255)),  # cyan mass 1.5kg
-    (15, 2, (255, 215, 0, 255)),  # gold mass 2kg
-    (15, 2.5, (190, 190, 190, 255)),  # gray mass 2.5kg
-    (30, 3, (0, 255, 0, 255)),  # green mass 3kg
-    (30, 5, (255, 165, 0, 255)),  # orange mass 5kg
-    (30, 7, (160, 32, 240, 255)),  # purple mass 7kg
-    (30, 11, (255, 0, 0, 255) ),  # red mass 11kg
-    (30, 18, (255, 255, 0, 255))  # yellow mass 18kg
-
-    ]
-    #สุ่มลูกบอลซ้ำ
-    Lparams = random.choice(Lball_params)
-    Lparams1 = random.choice(Lball_params)
-    Lparams2 = random.choice(Lball_params)
-    sball = Ball(space, *Lparams)
-    sball1 = Ball(space, *Lparams1)
-    sball2 = Ball(space, *Lparams2)
-    #แก้ปัญหาการเลือกลูกบอลซ้ำ
-    #Lball_params_set = set(Lball_params)
-    #params = random.choice(list(Lball_params_set))
-    #Lball_params_set.remove(params)
-    #params1 = random.choice(list(Lball_params_set))
-    #Lball_params_set.remove(params1)
-    #params2 = random.choice(list(Lball_params_set))
-    #Lball_params_set.remove(params2)
-    #sball = Ball(space, *params)
-    #sball1 = Ball(space, *params1)
-    #sball2 = Ball(space, *params2)
+    #This code will put in button
+    sball1 = Ball(space, 15, 0.5/2, (0, 0, 0,255),200,100) #black  # Adjusted mass to 0.5 kg
+    sball2 = Ball(space, 15, 1/2, (0, 0, 255,255),200,100) #blue  # Adjusted mass to 1kg
+    sball3 = Ball(space, 15, 1.5/2, (0, 255, 255,255),200,100) #cyan  # Adjusted mass to 1.5kg
+    sball4 = Ball(space, 15, 2/2, (255, 215, 0,255),200,100) #gold   # Adjusted mass to 2kg
+    sball5 = Ball(space, 15, 2.5/2, (190, 190, 190,255),200,100)#gray   # Adjusted mass to 2.5kg
 
 
     Rball_params = [
-    (30, 3, (0, 255, 0, 255), 300, 700),  # green mass 3kg
-    (30, 5, (255, 165, 0, 255), 300, 700),  # orange mass 5kg
-    (30, 7, (160, 32, 240, 255), 300, 700),  # purple mass 7kg
-    (30, 11, (255, 0, 0, 255), 300, 700),  # red mass 11kg
-    (30, 18, (255, 255, 0, 255), 300, 700)  # yellow mass 18kg
+    (30, 3, (0, 255, 0, 255), 300, 1000),  # green mass 3kg
+    (30, 5, (255, 165, 0, 255), 300, 1000),  # orange mass 5kg
+    (30, 7, (160, 32, 240, 255), 300, 1000),  # purple mass 7kg
+    (30, 11, (255, 0, 0, 255), 300, 1000),  # red mass 11kg
+    (30, 18, (255, 255, 0, 255), 300, 1000)  # yellow mass 18kg
     ]
     #สุ่มลูกบอลซ้ำลูกที่เหลือ  
     Rparams = random.choice(Rball_params)
     Bball = Ball(space, *Rparams)
-    #แก้ปัญหาการเลือกลูกบอลซ้ำ
-    #Lball_params_set = set(Lball_params)
-    #Rparams = random.choice(list(Rball_params_set))
-    
-
     create_boundaries(space, width, height)
     create_scale_base(space, width, height)
     create_scale_body(space)
     
-    dragging = [False, False,False,False,False]  # Separate drag states for each ball
+    
+    
+
+    dragging = [False, False,False,False,False,False]  # Separate drag states for each ball
     original_gravity = space.gravity
 
     while run:
@@ -272,61 +267,80 @@ def run(window, width, height):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left mouse button
                     pos = pygame.mouse.get_pos()
-                    if is_point_in_circle(pos, sball):
+                    if is_point_in_circle(pos, sball1):
                         dragging[0] = True
-                        sball.body.force = 0, 0
+                        sball1.body.force = 0, 0
                         space.gravity = 0, 981
                     elif is_point_in_circle(pos, Bball):
                         dragging[1] = True
                         Bball.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, sball1):
-                        dragging[2] = True
-                        sball1.body.force = 0, 0
-                        space.gravity = 0, 981
                     elif is_point_in_circle(pos, sball2):
-                        dragging[3] = True
+                        dragging[2] = True
                         sball2.body.force = 0, 0
                         space.gravity = 0, 981
-
-                    
+                    elif is_point_in_circle(pos, sball3):
+                        dragging[3] = True
+                        sball3.body.force = 0, 0
+                        space.gravity = 0, 981
+                    elif is_point_in_circle(pos, sball4):
+                        dragging[4] = True
+                        sball4.body.force = 0, 0
+                        space.gravity = 0, 981
+                    elif is_point_in_circle(pos, sball5):
+                        dragging[5] = True
+                        sball5.body.force = 0, 0
+                        space.gravity = 0, 981
+        
+            
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # Left mouse button
                     if dragging[0]:
-                        sball.body.force = 0, -sball.body.mass * GRAVITY * 100
-                    if dragging[1]:
-                        Bball.body.force = 0, -Bball.body.mass * GRAVITY * 100
-                    if dragging[2]:
                         sball1.body.force = 0, -sball1.body.mass * GRAVITY * 100
-                    if dragging[3]:
+                    if dragging[1]:
+                        Bball.body.force = 0, -Bball.body.mass * GRAVITY * 100 
+                    if dragging[2]:
                         sball2.body.force = 0, -sball2.body.mass * GRAVITY * 100
+                    if dragging[3]:
+                        sball3.body.force = 0, -sball3.body.mass * GRAVITY * 100
+                    if dragging[4]:
+                        sball4.body.force = 0, -sball4.body.mass * GRAVITY * 100
+                    if dragging[5]:
+                        sball5.body.force = 0, -sball5.body.mass * GRAVITY * 100
                     space.gravity = original_gravity
                     dragging = [False] * 10
         # Handle dragging independently for each ball
         if dragging[0]:
             pos = pygame.mouse.get_pos()
-            sball.body.position = pos
-            sball.body.velocity = 0, 0
+            sball1.body.position = pos
+            sball1.body.velocity = 0, 0
         if dragging[1]:
             pos1 = pygame.mouse.get_pos()
             Bball.body.position = pos1
             Bball.body.velocity = 0, 0
         if dragging[2]:
             pos2 = pygame.mouse.get_pos()
-            sball1.body.position = pos2
-            sball1.body.velocity = 0, 0
+            sball2.body.position = pos2
+            sball2.body.velocity = 0, 0
         if dragging[3]:
             pos3 = pygame.mouse.get_pos()
-            sball2.body.position = pos3
-            sball2.body.velocity = 0, 0
+            sball3.body.position = pos3
+            sball3.body.velocity = 0, 0
+        if dragging[4]:
+            pos4 = pygame.mouse.get_pos()
+            sball4.body.position = pos4
+            sball4.body.velocity = 0, 0
+        if dragging[5]:
+            pos5 = pygame.mouse.get_pos()
+            sball5.body.position = pos5
+            sball5.body.velocity = 0, 0
         
-
         
         space.step(dt)
         draw(space, window, draw_options)
         clock.tick(fps)
-        
-
+    
+    
     pygame.quit()
 
 
