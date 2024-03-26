@@ -11,8 +11,8 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 gravity = 0.5
 bounce_stop = 0.3
 wall_thickness = 10
-mouse_trajectory = []
-background = pygame.image.load('blackgroud_for_display.png')
+mouse_trajectory = [] # ตำแหน่งของเมาส์
+background = pygame.image.load('blackgroud_for_display.png') #canva picture
 
 
           
@@ -41,8 +41,8 @@ class Ball:
         self.circle.mass = mass
         self.circle.density = density
         self.circle.color = color
-        self.circle.elasticity = 0.8 
-        self.circle.friction = 0.5  
+        self.circle.elasticity = 0.8  # Bounciness
+        self.circle.friction = 0.5  # Surface friction
         space.add(self.body, self.circle)
 
     def draw_text(self, surface, text):
@@ -54,7 +54,7 @@ class Ball:
         pygame.draw.circle(surface, self.color, self.body.position, self.radius)
         self.draw_text(surface, self.body.mass)
         
-    def check_gravity(self, x_push, y_push):
+    def check_gravity(self, x_push, y_push): # ตรวจสอบแรงโน้มถ่วง
         self.x_speed -= self.x_speed * self.AIR_RESISTANCE
         self.y_speed -= self.y_speed * self.AIR_RESISTANCE
         if not self.selected:
@@ -120,7 +120,7 @@ def check_select(self, pos):
 
 
 def draw(space, window, draw_option):
-    window.blit(background, (0, 0))
+    window.blit(background, (0, 0))# Add background image
     space.debug_draw(draw_option)
 
     pygame.display.update()
@@ -138,7 +138,7 @@ def create_scale_base(space, width, height):
         shape = pymunk.Poly.create_box(body, size, radius=2)
         shape.color = color
         shape.mass = mass
-        shape.sensor = False
+        shape.sensor = False # Disable collision
         space.add(body, shape)
 
     return space
@@ -150,7 +150,7 @@ def create_scale_body(space):
     rotation_center_body = pymunk.Body(body_type=pymunk.Body.STATIC)
     rotation_center_body.position = (500, 350)
 
-    body = pymunk.Body(body_type=pymunk.Body.DYNAMIC)
+    body = pymunk.Body(body_type=pymunk.Body.DYNAMIC) # Make body dynamic (affected by gravity)
     body.position = (500, 350)
     body.angle = math.radians(0)
     rect = pymunk.Poly.create_box(body, (500, 10))  
@@ -182,10 +182,10 @@ def create_scale_body(space):
     s14.color = (0, 255, 0, 255)
     s13.color = (0, 255, 0, 255)
     
-    pivot_joint = pymunk.PivotJoint(rotation_center_body, body, (500, 350))
+    pivot_joint = pymunk.PivotJoint(rotation_center_body, body, (500, 350)) # Create pivot joint to keep the body in place
     space.add(pivot_joint)
     # Add a rotary limit joint to limit rotation to 10 degrees
-    limit_joint = pymunk.RotaryLimitJoint(rotation_center_body, body, -math.radians(10), math.radians(10))        
+    limit_joint = pymunk.RotaryLimitJoint(rotation_center_body, body, -math.radians(10), math.radians(10))
     space.add(limit_joint)
     
     space.add(body, rect)
@@ -206,7 +206,7 @@ def create_boundaries(space, width, height):
     ]
 
     for pos, size in rects:
-        body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        body = pymunk.Body(body_type=pymunk.Body.STATIC) # Make body static (not affected by gravity)
         body.position = pos
         shape.friction = FRICTION
         shape.elasticity = ELASTICITY
@@ -223,23 +223,23 @@ def run(window, width, height):
     space = pymunk.Space()
     clock = pygame.time.Clock()
     fps = 60
-    dt = 1 / fps
+    dt = 1 / fps # Time step
     
 
     handler = space.add_collision_handler(1, 2)
-    handler.begin = lambda a, b, arbiter, space: False
+    handler.begin = lambda a, b, arbiter, space: False # Disable collision between balls
     space = pymunk.Space()
     space.gravity = (0, GRAVITY * 100)
     draw_options = pymunk.pygame_util.DrawOptions(window)
 
-    #This code will put in button
-    sball1 = Ball(space, 15, 0.5/2, (0, 0, 0,255),200,100) #black  # Adjusted mass to 0.5 kg
-    sball2 = Ball(space, 15, 1/2, (0, 0, 255,255),200,100) #blue  # Adjusted mass to 1kg
-    sball3 = Ball(space, 15, 1.5/2, (0, 255, 255,255),200,100) #cyan  # Adjusted mass to 1.5kg
-    sball4 = Ball(space, 15, 2/2, (255, 215, 0,255),200,100) #gold   # Adjusted mass to 2kg
-    sball5 = Ball(space, 15, 2.5/2, (190, 190, 190,255),200,100)#gray   # Adjusted mass to 2.5kg
+    #Explain the weight of each ball
+    #sball1 = Ball(space, 15, 0.5/2, (0, 0, 0,255),200,100) #black  # Adjusted mass to 0.5 kg
+    #sball2 = Ball(space, 15, 1/2, (0, 0, 255,255),200,100) #blue  # Adjusted mass to 1kg
+    #sball3 = Ball(space, 15, 1.5/2, (0, 255, 255,255),200,100) #cyan  # Adjusted mass to 1.5kg
+    #sball4 = Ball(space, 15, 2/2, (255, 215, 0,255),200,100) #gold   # Adjusted mass to 2kg
+    #sball5 = Ball(space, 15, 2.5/2, (190, 190, 190,255),200,100)#gray   # Adjusted mass to 2.5kg
 
-
+    Rightside_weight = [] # สร้าง list ของน้ำหนักของลูกบอลที่อยู่ทางขวา
     Rball_params = [
     (30, 3, (0, 255, 0, 255), 300, 1000),  # green mass 3kg
     (30, 5, (255, 165, 0, 255), 300, 1000),  # orange mass 5kg
@@ -250,44 +250,128 @@ def run(window, width, height):
     #สุ่มลูกบอลซ้ำลูกที่เหลือ  
     Rparams = random.choice(Rball_params)
     Bball = Ball(space, *Rparams)
+    if Rball_params == [0]:
+        weight_Bball = 3 # Adjusted mass to 3 kg
+        Rightside_weight.append(weight_Bball)
+    elif Rball_params == [1]:
+        weight_Bball = 5  # Adjusted mass to 5 kg
+        Rightside_weight.append(weight_Bball)
+    elif Rball_params == [2]:
+        weight_Bball = 7 # Adjusted mass to 7 kg
+        Rightside_weight.append(weight_Bball)
+    elif Rball_params == [3]:
+        weight_Bball = 11 # Adjusted mass to 11 kg
+        Rightside_weight.append(weight_Bball)
+    elif Rball_params == [4]:
+        weight_Bball = 18 # Adjusted mass to 18 kg
+        Rightside_weight.append(weight_Bball)
+    
     create_boundaries(space, width, height)
     create_scale_base(space, width, height)
     create_scale_body(space)
     
     
-    
+    sball1 = None 
+    sball2 = None
+    sball3 = None
+    sball4 = None
+    sball5 = None
+
+
 
     dragging = [False, False,False,False,False,False]  # Separate drag states for each ball
     original_gravity = space.gravity
+    Leftside = []
+    Leftside_weight = [] # สร้าง list ของน้ำหนักของลูกบอลที่อยู่ทางซ้าย
+    
+    weight_Bball = None
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            elif event.type == pygame.KEYDOWN:  # New event check for key press
+                if event.key == pygame.K_1:  # If '1' key is pressed
+                    sball1 = Ball(space, 15, 0.5/2, (0, 0, 0,255),200,100)  # Spawn sball1
+                    weight_sball1 = 0.5 # Adjusted mass to 0.5 kg
+                    Leftside.append(sball1)
+                    Leftside_weight.append(weight_sball1)
+                elif event.key == pygame.K_2:  # If '2' key is pressed
+                    sball2 = Ball(space, 15, 1/2, (0, 0, 255,255),200,100)  # Spawn sball2
+                    weight_sball2 = 1 # Adjusted mass to 1kg
+                    Leftside.append(sball2)
+                    Leftside_weight.append(weight_sball2)
+                elif event.key == pygame.K_3:  # If '3' key is pressed
+                    sball3 = Ball(space, 15, 1.5/2, (0, 255, 255,255),200,100)  # Spawn sball3
+                    weight_sball3 = 1.5 # Adjusted mass to 1.5kg
+                    Leftside.append(sball3)
+                    Leftside_weight.append(weight_sball3)
+                elif event.key == pygame.K_4:  # If '4' key is pressed
+                    sball4 = Ball(space, 15, 2/2, (255, 215, 0,255),200,100)  # Spawn sball4
+                    weight_sball4 = 2 # Adjusted mass to 2kg
+                    Leftside.append(sball4)
+                    Leftside_weight.append(weight_sball4)
+                elif event.key == pygame.K_5:  # If '5' key is pressed
+                    sball5 = Ball(space, 15, 2.5/2, (190, 190, 190,255),200,100)  # Spawn sball5
+                    weight_sball5 = 2.5 # Adjusted mass to 2.5kg
+                    Leftside.append(sball5)
+                    Leftside_weight.append(weight_sball5)
+                elif event.key == pygame.K_r: # If 'r' key is pressed
+                    for ball in Leftside:
+                        if ball.body in space.bodies:  # Check if the body is in the space
+                            space.remove(ball.body, ball.circle)
+                    Leftside.clear()  # Clear the list
+                    if Bball.body in space.bodies:  # Check if the body is in the space
+                        space.remove(Bball.body, Bball.circle)
+                    if weight_Bball in Rightside_weight:
+                        Rightside_weight.remove(weight_Bball)
+                    Rparamss = random.choice(Rball_params)
+                    Bball = Ball(space, *Rparamss)
+                    if Rball_params == [0]:
+                        weight_Bball = 3 # Adjusted mass to 3 kg
+                        Rightside_weight.append(weight_Bball)
+                    elif Rball_params == [1]:
+                        weight_Bball = 5  # Adjusted mass to 5 kg
+                        Rightside_weight.append(weight_Bball)
+                    elif Rball_params == [2]:
+                        weight_Bball = 7 # Adjusted mass to 7 kg
+                        Rightside_weight.append(weight_Bball)
+                    elif Rball_params == [3]:
+                        weight_Bball = 11 # Adjusted mass to 11 kg
+                        Rightside_weight.append(weight_Bball)
+                    elif Rball_params == [4]:
+                        weight_Bball = 18 # Adjusted mass to 18 kg
+                        Rightside_weight.append(weight_Bball)
+                    
+                    Rightside_weight.append(Bball)
+                    
+                    
+
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left mouse button
                     pos = pygame.mouse.get_pos()
-                    if is_point_in_circle(pos, sball1):
+                    if sball1 is not None and is_point_in_circle(pos, sball1):
                         dragging[0] = True
                         sball1.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, Bball):
+                    elif Bball is not None and is_point_in_circle(pos, Bball):
                         dragging[1] = True
                         Bball.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, sball2):
+                    elif sball2 is not None and is_point_in_circle(pos, sball2):
                         dragging[2] = True
                         sball2.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, sball3):
+                    elif sball3 is not None and is_point_in_circle(pos, sball3):
                         dragging[3] = True
                         sball3.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, sball4):
+                    elif sball4 is not None and is_point_in_circle(pos, sball4):
                         dragging[4] = True
                         sball4.body.force = 0, 0
                         space.gravity = 0, 981
-                    elif is_point_in_circle(pos, sball5):
+                    elif sball5 is not None and is_point_in_circle(pos, sball5):
                         dragging[5] = True
                         sball5.body.force = 0, 0
                         space.gravity = 0, 981
@@ -345,7 +429,7 @@ def run(window, width, height):
 
 
 
-def is_point_in_circle(point, circles):
+def is_point_in_circle(point, circles): # ตรวจสอบว่าจุดอยู่ในวงกลมหรือไม่ #check cirle
     if not isinstance(circles, list):
         circles = [circles]
 
