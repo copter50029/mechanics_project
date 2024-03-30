@@ -13,7 +13,9 @@ bounce_stop = 0.3
 wall_thickness = 10
 mouse_trajectory = [] # ตำแหน่งของเมาส์
 background = pygame.image.load("backgroud_for_display.png")
-
+file = open('log.txt', 'w')
+file = open('log.txt', 'a')
+file.write('start simulation\n')
 
           
 class Ball:
@@ -260,13 +262,15 @@ def run(window, width, height):
         Rightside_weight.append(weight_Bball)
     elif Rball_params == [2]:
         weight_Bball = 7 # Adjusted mass to 7 kg
-        Rightside_weight.append(weight_Bball)
+        Rightside_weight.append(weight_Bball)  
     elif Rball_params == [3]:
         weight_Bball = 11 # Adjusted mass to 11 kg
         Rightside_weight.append(weight_Bball)
     elif Rball_params == [4]:
         weight_Bball = 18 # Adjusted mass to 18 kg
         Rightside_weight.append(weight_Bball)
+    
+    file.write('insert Bigball in right side\n')
     
     create_boundaries(space, width, height)
     create_scale_base(space, width, height)
@@ -303,30 +307,35 @@ def run(window, width, height):
                     Leftside.append(sball1)
                     Leftside_weight.append(weight_sball1)
                     dragging_Leftside.append(False)
+                    file.write('insert 0.5kg smallball in left side\n')
                 elif event.key == pygame.K_2:  # If '2' key is pressed
                     sball2 = Ball(space, 15, 1/2, (0, 0, 255,255),200,100)  # Spawn sball2
                     weight_sball2 = 1 # Adjusted mass to 1kg
                     Leftside.append(sball2)
                     Leftside_weight.append(weight_sball2)
                     dragging_Leftside.append(False)
+                    file.write('insert 1kg smallball in left side\n')
                 elif event.key == pygame.K_3:  # If '3' key is pressed
                     sball3 = Ball(space, 15, 1.5/2, (0, 255, 255,255),200,100)  # Spawn sball3
                     weight_sball3 = 1.5 # Adjusted mass to 1.5kg
                     Leftside.append(sball3)
                     Leftside_weight.append(weight_sball3)
                     dragging_Leftside.append(False)
+                    file.write('insert 1.5kg smallball in left side\n')
                 elif event.key == pygame.K_4:  # If '4' key is pressed
                     sball4 = Ball(space, 15, 2/2, (255, 215, 0,255),200,100)  # Spawn sball4
                     weight_sball4 = 2 # Adjusted mass to 2kg
                     Leftside.append(sball4)
                     Leftside_weight.append(weight_sball4)
                     dragging_Leftside.append(False)
+                    file.write('insert 2kg smallball in left side\n')
                 elif event.key == pygame.K_5:  # If '5' key is pressed
                     sball5 = Ball(space, 15, 2.5/2, (190, 190, 190,255),200,100)  # Spawn sball5
                     weight_sball5 = 2.5 # Adjusted mass to 2.5kg
                     Leftside.append(sball5)
                     Leftside_weight.append(weight_sball5)
                     dragging_Leftside.append(False)
+                    file.write('insert 2.5kg smallball in left side\n')
                 elif event.key == pygame.K_r: # If 'r' key is pressed
                     for ball in Leftside:
                         if ball.body in space.bodies:  # Check if the body is in the space
@@ -354,6 +363,9 @@ def run(window, width, height):
                         weight_Bball = 18 # Adjusted mass to 18 kg
                         Rightside_weight.append(weight_Bball)
                     Rightside_weight.append(Bball)
+                    file.write('insert Bigball in right side\n')
+                    file.write('reset simulation\n')
+                    file.write('----------------------------------------\n')
     
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -395,6 +407,7 @@ def run(window, width, height):
         left_weight = sum(Leftside_weight)
         right_weight = sum(ball.mass for ball in Rightside_weight)
         weight_difference = right_weight - left_weight
+        
 
         font = pygame.font.SysFont(None, 36, bold = True)
         left_text = font.render("Left Weight: {:.2f} kg".format(left_weight), True, (255, 0, 0))
@@ -421,7 +434,7 @@ def run(window, width, height):
         window.blit(left_text, (20, 20))
         window.blit(right_text, (width - right_text.get_width() - 20, 20))
         window.blit(middle_text, (width/3, 20))
-        window.blit(insert_Rball, (600, 750))   
+        window.blit(insert_Rball, (600, 750))
         window.blit(insert_sball, (50, 750))
 
         pygame.display.update()
@@ -433,6 +446,9 @@ def run(window, width, height):
 
     
     pygame.quit()
+    file.write('end simulation\n')
+    file.write('----------------------------------------\n')
+    file.close()
 
 
 
